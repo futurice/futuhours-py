@@ -1,0 +1,116 @@
+{% load bootstrap %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+<link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
+<style>
+body {
+font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
+padding: 10px;
+}
+ul
+{
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+li {
+    margin-top: 10px;
+    
+}
+.user {
+    font-weight: bold;
+}
+.balance {
+    color: red;
+    font-size: 12px;
+}
+.separator {
+    color: #ccc;
+}
+.days {
+    font-size: 13.5px;
+}
+.month {
+    font-weight: bold;
+}
+.form-container {
+    padding: 10px;
+}
+.form-group {
+}
+
+select#id_types {
+    height: 100px;
+}
+.actions {
+    clear: both;
+    padding: 10px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Missing hour reports</h1>
+
+<div>
+<p>
+Last update {{updated}} minutes ago. Results cached for {{update_interval}} minutes.
+</p>
+<p>
+Lists employees, and days missing hour markings for the past month(s).
+</p>
+</div>
+
+<div class="form-container">
+<form enctype="multipart/form-data" method="post" action="" role="form">
+{%csrf_token%}
+<div>
+{{form|bootstrap_horizontal}}
+</div>
+<div class="actions">
+<input type="submit" value="Query" class="btn btn-submit">
+</div>
+</form>
+</div>
+
+<div>
+{% for tribe,users in result.items %}
+    {% if users %}
+    <h2>{{tribe|safe}}</h2>
+    {% endif %}
+    <ul>
+    {% for user in users %}
+        {% if user.2 %}
+        <li>
+            <span class="user">{{user.0.first_name}} {{user.0.last_name}} ({{user.0.username}})</span>
+            <span class="balance"></span>
+            <span class="separator">:</span>
+            <span class="days">
+            {% for year,months in user.2.items %}
+                <span class="month">{{year}}:</span>
+                {% for month,days in months.items %}
+                    <span class="month">{{month}}:</span>
+                    {% for day in days %}
+                        {{day|date:'j'}}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
+            </span>
+        </li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+{% endfor %}
+</div>
+
+
+</body>
+</html>

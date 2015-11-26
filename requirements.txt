@@ -1,0 +1,6 @@
+Django==1.9rc2
+django-bootstrap-form==3.2
+gunicorn==19.4.1
+python-dateutil==2.4.2
+workdays==1.4
+djangomi
