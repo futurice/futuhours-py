@@ -14,9 +14,6 @@ settings.INSTALLED_APPS += [
 'bootstrapform',
 ]
 
-#'bootstrapform',
-#import pdb; pdb.set_trace()
-
 from django.apps import AppConfig
 
 def index(request):
