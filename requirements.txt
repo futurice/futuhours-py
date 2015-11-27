@@ -3,4 +3,5 @@ django-bootstrap-form==3.2
 gunicorn==19.4.1
 python-dateutil==2.4.2
 workdays==1.4
+requests==2.8.1
 djangomi

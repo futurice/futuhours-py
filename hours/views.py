@@ -3,7 +3,8 @@ from django.shortcuts import render
 from django.core.cache import cache
 from django.utils import timezone
 
-import hashlib
+import os, hashlib, json
+import requests
 from collections import OrderedDict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -13,6 +14,14 @@ from vacation import working_days
 
 Users = None # TODO: API
 Hours = None # TODO: API
+
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', '')
+GOOGLE_API_URL = 'https://www.googleapis.com/calendar/v3/calendars/{}/events'
+# [(account, calendar)] # TODO: relate to Capacity Calendar
+GOOGLE_HOLIDAY_CALENDARS = [('fi', 'en.finnish%23holiday%40group.v.calendar.google.com'),
+                            ('ger', 'en.german%23holiday@group.v.calendar.google.com'),
+                            ('uk', 'en.uk%23holiday%40group.v.calendar.google.com'),
+                            ('swi', 'en.ch%23holiday%40group.v.calendar.google.com')]
 
 EMPLOYEE_TYPES = [
 'Permanent - full-time',
@@ -177,3 +186,18 @@ def find_missing_hour_markings(till, n=1, wanted_user_types=None, exclude_userna
         g.setdefault(teams[k]['name'], [])
         g[teams[k]['name']] = teams[k]['users']
     return g
+
+def calendar_holidays():
+    params = {'maxResults': 9999, 'orderBy': 'startTime', 'showHiddenInvitations': True, 'singleEvents': True,
+              'timeMin': '{0}-01-01T00:00:00.000z'.format(datetime.now().year-1), 'key': GOOGLE_API_KEY}
+    data = []
+    for account_id, calendar in GOOGLE_HOLIDAY_CALENDARS:
+        url = GOOGLE_API_URL.format(calendar)
+        res = requests.get(url, params=params)
+        for h in json.loads(res.text)['items']:
+            t = dict(day=datetime.strptime(h['start']['date'], "%Y-%m-%d"),
+                     name=h['summary'],
+                     account_id=account_id,
+                     calendar=calendar,)
+            data.append(t)
+    return data
