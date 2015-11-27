@@ -24,6 +24,7 @@ from hours import views
 urlpatterns = [
     url(r'^$', index),
     url(r'^billing', views.billing),
+    url(r'^holidays', views.gcalholidays),
 ]
 
 app = get_wsgi_application()

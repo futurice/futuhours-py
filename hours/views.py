@@ -1,7 +1,10 @@
+from __future__ import absolute_import
 from django import forms
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.core.cache import cache
 from django.utils import timezone
+from django.core.serializers.json import DjangoJSONEncoder
 
 import os, hashlib, json
 import requests
@@ -10,7 +13,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse as parse_date
 
-from vacation import working_days
+from hours.vacation import working_days
 
 Users = None # TODO: API
 Hours = None # TODO: API
@@ -201,3 +204,9 @@ def calendar_holidays():
                      calendar=calendar,)
             data.append(t)
     return data
+
+def to_json(data, ensure_ascii=False):
+    return json.dumps(data, encoding='utf-8', cls=DjangoJSONEncoder, ensure_ascii=ensure_ascii, separators=(',',':'))
+
+def gcalholidays(request):
+    return HttpResponse(to_json(calendar_holidays()), content_type='application/json')
