@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     python python-dev python-pip \
 	supervisor \
     libpq-dev git unzip \
+	redis-server \
     libxml2-dev libxslt1-dev libz-dev libffi-dev \
     libpcre3 libpcre3-dev libssl-dev
 
@@ -43,6 +44,8 @@ ADD docker/supervisord.conf /etc/supervisor/supervisord.conf
 ADD docker/nginx.conf /etc/nginx/nginx.conf
 
 COPY . /opt/app/
+
+ENV CELERY_LOG_LEVEL WARNING
 
 EXPOSE 8000
 
