@@ -9,11 +9,7 @@ import os
 import boto3
 import hashlib
 
-def aws_config():
-    return dict(aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID',''),
-                aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY',''),
-                region_name=os.getenv('AWS_REGION', 'us-east-1'),
-                aws_session_token=os.getenv('AWS_SESSION_TOKEN',''),)
+from connector.amazon import aws_config
 
 def json_to_csv(res):
     CSV_ENCODING = os.getenv('CSV_ENCODING', 'iso-8859-1')
@@ -50,9 +46,9 @@ def fetch_report(report):
     # convert json to csv
     text = json_to_csv(res)
 
-    # store in S3
+    # store
     name = hashlib.sha256("{}{}".format(report['name'], os.getenv('SALT'))).hexdigest()
-    save_to_s3(data=text, name=name, bucket=os.getenv('S3_BUCKET'))
+    s3_put(opts=dict(Body=text, Key=name, Bucket=os.getenv('S3_BUCKET'), ContentType='text/csv'))
 
 def get_configured_reports():
     """ name&param=y,param=z<>... """
@@ -69,8 +65,10 @@ def fetch_reports():
         fetch_report.delay(report)
 
 @app.task
-def save_to_s3(data, name, bucket):
+def s3_put(opts={}):
     session = boto3.session.Session(**aws_config())
     s3 = session.client('s3')
-    s3.put_object(Body=data, Key=name, Bucket=bucket, GrantRead='uri=http://acs.amazonaws.com/groups/global/AllUsers')
 
+    opts.setdefault('GrantRead', 'uri=http://acs.amazonaws.com/groups/global/AllUsers')
+    opts.setdefault('ServerSideEncryption', 'AES256')
+    s3.put_object(**opts)
