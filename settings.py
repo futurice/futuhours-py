@@ -15,6 +15,12 @@ settings.INSTALLED_APPS += [
 
 'hours',
 'bootstrapform',
+'raven.contrib.django.raven_compat',
 
 'connector',
 ]
+
+RAVEN_CONFIG = {
+    'dsn': os.getenv('RAVEN_DSN'),
+}
+

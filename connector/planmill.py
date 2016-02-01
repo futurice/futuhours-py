@@ -88,14 +88,14 @@ class PlanMill(object):
         attrs.update(**kwargs)
         return self.make_request('users', params=attrs)
 
-    def get_report(self, report, **kwargs):
-        return {'data': self.make_request("reports/%s" % (report), params=kwargs), 'meta': self.make_request("reports/%s/meta" % (report))}
+    def get_report(self, report, params={}, **kwargs):
+        return {'data': self.make_request("reports/%s" % (report), params=params), 'meta': self.make_request("reports/%s/meta" % (report))}
 
     def get_reports(self):
         return self.make_request("reports")
 
-    def get_timereports(self, **kwargs):
-        return self.make_request('timereports', params=kwargs)
+    def get_timereports(self, params={}, **kwargs):
+        return self.make_request('timereports', params=params)
 
     def get_timereport(self, timereport_id):
         return self.make_request('timereports/{}'.format(timereport_id))
@@ -112,8 +112,8 @@ class PlanMill(object):
     def delete_timereport(self, id):
         return self.make_request('timereports/{}'.format(id), verb='delete')
 
-    def get_teams(self, **kwargs):
-        return self.make_request('teams', params=kwargs)
+    def get_teams(self, params={}, **kwargs):
+        return self.make_request('teams', params=params)
 
     def get_team(self, id):
         return self.make_request('teams/{}'.format(id))

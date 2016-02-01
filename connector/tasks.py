@@ -7,9 +7,10 @@ from connector.planmill import PlanMill
 
 import os
 import boto3
-import hashlib
+import requests
 
 from connector.amazon import aws_config
+from connector.reports import to_hash, get_configured_reports
 
 def json_to_csv(res):
     CSV_ENCODING = os.getenv('CSV_ENCODING', 'iso-8859-1')
@@ -26,7 +27,7 @@ def json_to_csv(res):
         else:
             return res.encode(CSV_ENCODING, 'ignore')
     # head
-    rows.append(CSV_SEPARATOR.join([maybe_quote(k['name']) for k in rep['meta']['columns']]))
+    rows.append(CSV_SEPARATOR.join([maybe_quote(k['name']) for k in res['meta']['columns']]))
     # data
     for row in res['data']:
         clean_row = []
@@ -41,34 +42,35 @@ def fetch_report(report):
             api_user_id=os.getenv('PLANMILL_USER'),
             api_auth_key=os.getenv('PLANMILL_TOKEN'),)
     params = report['params'] or {}
-    res = pc.get_report(report['name'], **params)
+    kw = {}
+    res = pc.get_report(report['name'], params=params, **kw)
 
     # convert json to csv
     text = json_to_csv(res)
 
     # store
-    name = hashlib.sha256("{}{}".format(report['name'], os.getenv('SALT'))).hexdigest()
-    s3_put(opts=dict(Body=text, Key=name, Bucket=os.getenv('S3_BUCKET'), ContentType='text/csv'))
-
-def get_configured_reports():
-    """ name&param=y,param=z<>... """
-    reports = []
-    for report in filter(None, os.getenv('PLANMILL_REPORTS').split('<>')):
-        data = report.split('&')
-        reports.append({'name': data[0],
-                        'params': filter(None, data[1].split(','))})
-    return reports
+    s3_put(opts=dict(Body=text, Key=to_hash(report['name']), Bucket=os.getenv('S3_BUCKET'), ContentType=report['content_type']),
+            encrypt=False)
+@app.task
+def download_report(report):
+    res = requests.get(report['url'])
+    s3_put(opts=dict(Body=res.content, Key=to_hash(report['name']), Bucket=os.getenv('S3_BUCKET'), ContentType=report['content_type']),
+            encrypt=False)
 
 @app.task
 def fetch_reports():
     for report in get_configured_reports():
-        fetch_report.delay(report)
+        if report.get('url'):
+            download_report.delay(report)
+        else:
+            fetch_report.delay(report)
 
 @app.task
-def s3_put(opts={}):
+def s3_put(opts={}, encrypt=False):
     session = boto3.session.Session(**aws_config())
     s3 = session.client('s3')
 
     opts.setdefault('GrantRead', 'uri=http://acs.amazonaws.com/groups/global/AllUsers')
-    opts.setdefault('ServerSideEncryption', 'AES256')
+    if encrypt:
+        opts.setdefault('ServerSideEncryption', 'AES256')
     s3.put_object(**opts)

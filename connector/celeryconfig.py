@@ -13,8 +13,8 @@ CELERY_RESULT_SERIALIZER = CELERY_TASK_SERIALIZER
 CELERY_ACCEPT_CONTENT = [CELERY_TASK_SERIALIZER, ]
 
 CELERYBEAT_SCHEDULE = {
-    'fetch-report': {
-        'task': 'connector.tasks.fetch_report',
+    'fetch-reports': {
+        'task': 'connector.tasks.fetch_reports',
         'schedule': timedelta(minutes=30),
     },
 }
