@@ -23,7 +23,7 @@ GOOGLE_API_URL = 'https://www.googleapis.com/calendar/v3/calendars/{}/events'
 # [(account, calendar)] # TODO: relate to Capacity Calendar
 GOOGLE_HOLIDAY_CALENDARS = [('fi', 'en.finnish%23holiday%40group.v.calendar.google.com'),
                             ('ger', 'en.german%23holiday@group.v.calendar.google.com'),
-                            ('uk', 'en.uk%23holiday%40group.v.calendar.google.com'),
+                            ('uk', 'nhlu96v728ekb5cp8tprfhrnbg@group.calendar.google.com'),
                             ('swi', 'en.ch%23holiday%40group.v.calendar.google.com')]
 
 EMPLOYEE_TYPES = [
