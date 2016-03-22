@@ -3,6 +3,8 @@ import os
 from django.conf import settings
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
+settings.DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
+settings.ALLOWED_HOSTS = ['*']
 settings.ROOT_URLCONF = "app"
 settings.TEMPLATE_DIRS = (
     os.path.join(ROOT, 'templates'),

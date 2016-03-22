@@ -17,19 +17,6 @@ def dt_to_date(d):
         d = d.date()
     return d
 
-def vacation_days(user, start, end):
-    """ Calculate used working days for the duration of vacation """
-    start, end = dt_to_date(start), dt_to_date(end)
-    duration = vacation_duration(user, start, end)
-    years = list(set([start.year, end.year]))
-    holidays = calendar_holidays(user, years)
-    days = []
-    start -= relativedelta(days=1)#include starting day
-    for k in range(duration):
-        start = workdays.workday(start, 1, holidays=holidays)
-        days.append(start)
-    return days
-
 def working_days_total(user, dt, till=False):
     start = dt_to_date(dt)
     last_day_of_month = calendar.monthrange(start.year, start.month)[1]

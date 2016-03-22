@@ -1,4 +1,4 @@
-Django==1.9.1
+Django==1.9.4
 django-bootstrap-form==3.2
 gunicorn==19.4.1
 python-dateutil==2.4.2

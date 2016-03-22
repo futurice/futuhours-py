@@ -121,3 +121,6 @@ class PlanMill(object):
     def get_user(self, id):
         return self.make_request('users/{}'.format(id))
 
+    def get_enumerations(self, params={}):
+        return self.make_request('enumerations', params=params)
+
