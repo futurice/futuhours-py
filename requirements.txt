@@ -4,7 +4,6 @@ gunicorn==19.4.1
 python-dateutil==2.4.2
 workdays==1.4
 requests==2.9.1
-djangomi
 boto3==1.2.3
 celery==3.1.20
 redis==2.10.5
