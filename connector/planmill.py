@@ -124,3 +124,6 @@ class PlanMill(object):
     def get_enumerations(self, params={}):
         return self.make_request('enumerations', params=params)
 
+    def get_project_assignment(self, project_id):
+        return self.make_request('projects/{}/assignments'.format(project_id))
+
