@@ -127,3 +127,6 @@ class PlanMill(object):
     def get_project_assignment(self, project_id):
         return self.make_request('projects/{}/assignments'.format(project_id))
 
+    def get_me(self):
+        return self.make_request('me')
+

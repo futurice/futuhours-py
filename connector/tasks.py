@@ -53,9 +53,13 @@ def fetch_report(report):
             encrypt=False)
 @app.task
 def download_report(report):
-    res = requests.get(report['url'])
-    s3_put(opts=dict(Body=res.content, Key=to_hash(report['name']), Bucket=os.getenv('S3_BUCKET'), ContentType=report['content_type']),
-            encrypt=False)
+    res = requests.get(report['url'], timeout=600)
+    if res.status_code==200:
+        s3_put(opts=dict(Body=res.content,
+                        Key=to_hash(report['name']),
+                        Bucket=os.getenv('S3_BUCKET'),
+                        ContentType=report['content_type']),
+                        encrypt=False)
 
 @app.task
 def fetch_reports():
